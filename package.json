@@ -1,18 +1,18 @@
 {
-  "name": "radis",
-  "version": "0.0.0-development",
-  "description": "A Javascript dependency injection base on Angular.js API.",
+  "name": "radis-react",
+  "version": "0.0.1",
+  "description": "A Javascript dependency injection base on Angular.js API for React",
   "keywords": [],
-  "main": "dist/radis.umd.js",
-  "module": "dist/radis.es5.js",
-  "typings": "dist/types/radis.d.ts",
+  "main": "dist/radis-react.umd.js",
+  "module": "dist/radis-react.es5.js",
+  "typings": "dist/types/radis-react.d.ts",
   "files": [
     "dist"
   ],
   "author": "Jerome Quere <contact@jeromequere.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jerome-quere/radis/"
+    "url": "https://github.com/clerico/radis-react/"
   },
   "license": "MIT",
   "engines": {
