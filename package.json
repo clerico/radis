@@ -1,6 +1,6 @@
 {
   "name": "radis-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Javascript dependency injection base on Angular.js API for React",
   "keywords": [],
   "main": "dist/radis-react.umd.js",

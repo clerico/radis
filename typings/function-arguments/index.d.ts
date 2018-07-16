@@ -1,4 +1,4 @@
 declare module 'function-arguments' {
-    const t: any
+    const t: any;
     export = t
 }
