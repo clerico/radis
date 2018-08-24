@@ -1,22 +1,25 @@
 import functionArguments from 'function-arguments'
 import { Injectable, InjectableArray, InjectableClass, InjectableFunction, isArray, isFunction, isInjectable, Service } from './utils'
+import { exit } from 'shelljs'
 
-export interface Provider {
-  $get(...args: any[]): any
+export interface Provider<T extends Service> {
+  $get(...args: any[]): T
 }
 
-export interface ProviderClass {
-  new ($injector: Injector, serviceName: string): Provider
+export interface ProviderClass<T extends Service> {
+  new ($injector: Injector): Provider<T>
 }
 
-interface ServiceBag {
-  providerClass: ProviderClass
-  provider?: Provider
-  service?: Service
+interface ServiceBag<T extends Service> {
+  providerClass: ProviderClass<T>
+  provider: Provider<T> | null
+  service: T | null
 }
 
+// TODO
 export type InjectorLocals = { [name: string]: any }
 
+// TODO
 class ResolvedInjectable {
   constructor(public func: InjectableFunction, public self: any, public services: string[]) {}
   invoke(injector: Injector, locals: InjectorLocals): any {
@@ -142,8 +145,9 @@ export class Injector {
     return this
   }
 
-  addProvider(serviceName: string, providerClass: ProviderClass): Injector {
-    this.services[serviceName] = { providerClass }
+  addProvider<T extends Service>(providerClass: ProviderClass<T>): Injector {
+    // TODO find a way to get the name of T
+    this.services[providerClass.constructor.name] = { providerClass }
     return this
   }
 
@@ -152,20 +156,22 @@ export class Injector {
    * @returns the provider
    * @private
    */
-  private _getProvider(serviceName: string): Provider {
-    const serviceBag = this.services[serviceName]
+  private _getProvider<T extends Service>(providerClassName: string): Provider<T> {
+    const serviceBag = this.services[providerClassName]
     if (!serviceBag) {
-      throw new Error(`Can't load service with name ${serviceName}`)
+      throw new Error(`Can't load service for provider ${providerClassName}`)
     }
 
-    if (serviceBag.provider === undefined) {
-      serviceBag.provider = new serviceBag.providerClass(this, serviceName)
+    if (serviceBag.provider === null) {
+      serviceBag.provider = new serviceBag.providerClass(this)
     }
 
     return serviceBag.provider
   }
 
+  // TODO
   private _resolveFunctionInjectable(injectable: InjectableFunction, self: any): ResolvedInjectable {
+    console.log(' ' + injectable)
     let services = functionArguments(injectable)
 
     /*
@@ -182,10 +188,12 @@ export class Injector {
     return new ResolvedInjectable(injectable, self || this, services)
   }
 
+  // TODO
   private _resolveArrayInjectable(injectable: InjectableArray, self: any): ResolvedInjectable {
     return new ResolvedInjectable(injectable[injectable.length - 1] as any, self || this, injectable.slice(0, -1) as any)
   }
 
+  // TODO
   private _resolveStringInjectable(injectable: string, self: any): ResolvedInjectable {
     const tmp = injectable.split(':')
     self = this.getService(tmp[0], {})
@@ -197,9 +205,7 @@ export class Injector {
     return this._resolveFunctionInjectable(self[tmp[1]], self)
   }
 
-  /**
-   *
-   */
+  // TODO
   private _resolveInjectable(injectable: Injectable, self: any): ResolvedInjectable {
     if (!isInjectable(injectable)) {
       throw new Error(`${injectable} is not a valid injectable`)

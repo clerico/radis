@@ -1,5 +1,5 @@
 import { Injector, ProviderClass } from './Injector'
-import { Injectable, isInjectable, isFunction, isServiceName, ServiceClass, serviceNameRegex } from './utils'
+import { Injectable, isInjectable, isFunction, isServiceName, ServiceClass, serviceNameRegex, Service } from './utils'
 
 export class Module {
   private name: string
@@ -107,16 +107,16 @@ export class Module {
    * @param providerClass A provider constructor
    * @returns this
    */
-  provider(serviceName: string, providerClass: ProviderClass): Module {
-    if (!isServiceName(serviceName)) {
-      throw new Error(`Can't register provider in ${this.getName()} with name ${serviceName}. serviceName must match ${serviceNameRegex}`)
-    }
+  provider<T extends Service>(providerClass: ProviderClass<T>): Module {
+    // if (!isServiceName(serviceName)) {
+    // throw new Error(`Can't register provider in ${this.getName()} with name ${serviceName}. serviceName must match ${serviceNameRegex}`)
+    // }
 
-    if (!isFunction(providerClass)) {
-      throw new Error(`Can't register provider in ${this.getName()} with name ${serviceName}. Invalid providerClass ${providerClass}`)
-    }
+    // if (!isFunction(providerClass)) {
+    // throw new Error(`Can't register provider in ${this.getName()} with name ${serviceName}. Invalid providerClass ${providerClass}`)
+    // }
 
-    this.services[serviceName] = providerClass
+    this.services[providerClass.constructor.name] = providerClass
     return this
   }
 
@@ -154,18 +154,19 @@ export class Module {
   private _bootstrap(modules: Module[], $injectors: Injector[]): Injector {
     const $injector = new Injector()
 
-    Object.keys(this.services).forEach(serviceName => $injector.addProvider(serviceName, this.services[serviceName]))
+    // TODO Why not create directly the injector in the module ?
+    Object.keys(this.services).forEach(providerClassName => $injector.addProvider(this.services[providerClassName]))
 
-    this.dependencies.forEach(dependency => {
-      let moduleIndex = modules.indexOf(dependency)
-      if (moduleIndex === -1) {
-        $injectors.push(dependency._bootstrap(modules, $injectors))
-        modules.push(dependency)
-        moduleIndex = modules.length - 1
-      }
+    // this.dependencies.forEach(dependency => {
+    //   let moduleIndex = modules.indexOf(dependency)
+    //   if (moduleIndex === -1) {
+    //     $injectors.push(dependency._bootstrap(modules, $injectors))
+    //     modules.push(dependency)
+    //     moduleIndex = modules.length - 1
+    //   }
 
-      $injector.addChild($injectors[moduleIndex])
-    })
+    //   $injector.addChild($injectors[moduleIndex])
+    // })
 
     return $injector
   }
